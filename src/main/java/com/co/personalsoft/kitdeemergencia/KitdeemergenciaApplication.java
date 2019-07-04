@@ -49,13 +49,18 @@ public class KitdeemergenciaApplication {
 	@GetMapping("/riesgos")
 	String riesgos(@RequestParam(value="riesgo") String riesgo,
 			@RequestParam(value="localizacion") String localizacion,
-			@RequestParam(value="georeferencia") String georeferencia) {
+			@RequestParam(value="georeferencia", defaultValue = "\"\"") String georeferencia) {
 		georeferenciaplanes=null;
 		db = client.database("georeferenciaplanes", false);
 		
 		search = db.search("geoplan/geoplan");
 		search.includeDocs(true);
-		query = "georeferencia:"+  georeferencia + " AND localizacion:" +localizacion + " AND riesgo:" + riesgo;
+		
+		/*if (georeferencia.isEmpty()) {
+			georeferencia="\"\"";
+		}*/
+
+		query = "localizacion:" +localizacion + " AND riesgo:" + riesgo + " AND georeferencia:"+  georeferencia;
 		srgeoreferenciaplanes = search.querySearchResult(query, GeoReferenciaPlanes.class);
 		
 		for (SearchResult<GeoReferenciaPlanes>.SearchResultRow sr : srgeoreferenciaplanes.getRows()) {
