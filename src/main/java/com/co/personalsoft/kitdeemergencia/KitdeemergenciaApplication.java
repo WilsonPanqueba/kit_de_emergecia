@@ -33,6 +33,7 @@ public class KitdeemergenciaApplication {
 	private GeoReferenciaPlanes georeferenciaplanes;
 	private SearchResult<PlanActividades> srplanActividades;
 	List<PlanActividades> lsplanActividades = new ArrayList<>();
+	PlanActividades planActividades;
 	private SearchResult<Actividades> srActividades;
 	List<Actividades> lsActividades = new ArrayList<>();
 	private Puntos formatPuntos;
@@ -59,8 +60,10 @@ public class KitdeemergenciaApplication {
 		
 		for (SearchResult<GeoReferenciaPlanes>.SearchResultRow sr : srgeoreferenciaplanes.getRows()) {
 			georeferenciaplanes = (GeoReferenciaPlanes) sr.getFields();
+			break;
 			}
-		return gson.toJson(georeferenciaplanes); 	
+		return "<table>" + georeferenciaplanes.toRow() + "</table>";
+		//return gson.toJson(georeferenciaplanes); 	
 		}
 	@GetMapping("/planes")
 	String riesgos(@RequestParam(value="riesgo") String riesgo,
@@ -72,12 +75,20 @@ public class KitdeemergenciaApplication {
 		search.includeDocs(true);
 		query = "riesgo:"+ riesgo + " AND plan:" +plan;
 		srplanActividades = search.querySearchResult(query, PlanActividades.class);
-		
+		String stringRows="";
 		for (SearchResult<PlanActividades>.SearchResultRow sr : srplanActividades.getRows()) {
+			planActividades = (PlanActividades) sr.getFields();
+			stringRows+="<tr>";
+			stringRows+="<td>Descripcion</td>";
+			stringRows+="<td>"+planActividades.getDescipcion()+"</td>";
+			stringRows+="<td>Tipo Actividad</td>";
+			stringRows+="<td>"+planActividades.getTipo()+"</td>";
+			stringRows+="<td><a href=\"localhost:8080/actividades?actividad="+planActividades.getActividad()+"\">Juega</a></td>";
+			stringRows+="</tr>";
 			lsplanActividades.add((PlanActividades) sr.getFields());
+			
 			}
-		
-		return gson.toJson(lsplanActividades); 	
+		return "<table>"+stringRows+"</table>"; 	
 		}
 	
 	@GetMapping("/actividades")
